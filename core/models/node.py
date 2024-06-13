@@ -12,11 +12,11 @@ if TYPE_CHECKING:
 class Node(StoryRelationMixin, Base):
     _story_back_populates = "nodes"
 
-    path_id: Mapped[int] = mapped_column(primary_key=True)
-    parent_id: Mapped[int] = mapped_column(nullable=False)
+    path_id: Mapped[int] = mapped_column(nullable=True)
+    parent_id: Mapped[int] = mapped_column(nullable=True)
     short_line: Mapped[str] = mapped_column(Text, nullable=False)
-    image: Mapped[str] = mapped_column(String(200), nullable=False)
-    question: Mapped[str] = mapped_column(nullable=False)
+    image: Mapped[str] = mapped_column(Text, nullable=False)
+    question: Mapped[str] = mapped_column(Text, nullable=False)
     option_one: Mapped[str] = mapped_column(nullable=False)
     option_two: Mapped[str] = mapped_column(nullable=False)
     option_three: Mapped[str] = mapped_column(nullable=False)
