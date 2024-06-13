@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "family-bizzare-adventures"
+version = "0.1.0"
+description = ""
+authors = ["KD-TrendOn <damirkrasilnicov2006@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.111.0"
+uvicorn = {extras = ["standart"], version = "^0.30.1"}
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
+asyncpg = "^0.29.0"
+pydantic-settings = "^2.3.3"
+alembic = "^1.13.1"
+python-dotenv = "^1.0.1"
+langchain = "^0.2.3"
+langchain-core = "^0.2.5"
+langchain-openai = "^0.1.8"
+requests = "^2.32.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
