@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
-
+from ..nodes.schemas import NodeSchemaDB
 class StoryBase(BaseModel):
     base_prompt : str = "Придумай совершенно случайную каверзную ситуацию в которой оказалась команда"
 
@@ -12,3 +12,6 @@ class StorySchemaDB(StoryBase):
 
     base_node_id: Optional[int] = None
 
+class SendStory(BaseModel):
+    story: StorySchemaDB
+    base_node: NodeSchemaDB

@@ -10,7 +10,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import Node
 from typing import Optional
-from .schemas import NodeCreate, NodeBase, 
+from .schemas import NodeCreate, NodeBase 
 from core.neural_processing.text_getter import generate_background, generate_name, generate_options, generate_question, generate_reactions, generate_storyline
 from core.neural_processing.image_generation import image_generate
 

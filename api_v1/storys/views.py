@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import db_helper
 from . import crud
 from .dependencies import story_by_id
-from .schemas import StorySchemaDB, StoryBase
+from .schemas import StorySchemaDB, StoryBase, SendStory
 from api_v1.nodes import crud as cr
 router = APIRouter(tags=["Storys"])
 
@@ -25,11 +25,15 @@ async def create_story(
     story_in: StoryBase,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    await crud.create_story()
-    return await crud.create_story(session=session, story_in=story_in)
+    story = await crud.create_story(session=session, story_in=story_in)
+    nodebase = cr.create_node_base(story.id, story.base_prompt)
+    node = await cr.create_node(session=session, node_in=nodebase)
+    story = await crud.update_story(session=session, story_id=story.id, base_node_id=node.id)
+
+    return SendStory(story=story, node=node)
 
 
-@router.get("/{story_id}/", response_model=StorySchemaDB)
+@router.get("/{story_id}/", response_model=SendStory)
 async def get_story(
     story: StorySchemaDB = Depends(story_by_id),
 ):
