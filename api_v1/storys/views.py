@@ -37,7 +37,7 @@ async def get_story(
 
 @router.delete("/{story_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_story(
-    story: Product = Depends(story_by_id),
+    story: StorySchemaDB = Depends(story_by_id),
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> None:
     await crud.delete_story(session=session, story=story)

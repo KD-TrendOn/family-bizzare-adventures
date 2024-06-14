@@ -23,6 +23,10 @@ class NodeBase(BaseModel):
 
     question: str
 
+    reaction_true:str
+
+    reaction_false:str
+
     option_one: str
 
     option_two: str
@@ -30,6 +34,16 @@ class NodeBase(BaseModel):
     option_three: str
 
     option_four: str
+
+class NodeAnswer(BaseModel):
+    reaction:bool
+
+class NodeQuestion(BaseModel):
+    id: int
+
+    story_id:int
+
+    answer:str
 
 
 class NodeSchemaDB(NodeBase):

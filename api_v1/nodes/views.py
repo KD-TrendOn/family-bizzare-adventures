@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import db_helper
 from . import crud
-from .schemas import NodeBase, NodeCreate, NodeSchemaDB
+from .schemas import NodeBase, NodeCreate, NodeSchemaDB, NodeQuestion, NodeAnswer
 
 router = APIRouter(tags=["Nodes"])
 
@@ -23,27 +23,15 @@ async def get_node(
 
 
 @router.post(
-    "/",
-    response_model=StorySchemaDB,
+    "/get-reaction/{node_id}",
+    response_model=NodeAnswer,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_story(
-    story_in: StoryBase,
+async def answer_status(
+    node_id: int,
+    node_answer: NodeQuestion,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    return await crud.create_story(session=session, story_in=story_in)
-
-
-@router.get("/{story_id}/", response_model=StorySchemaDB)
-async def get_story(
-    story: StorySchemaDB = Depends(story_by_id),
-):
-    return story
-
-
-@router.delete("/{story_id}/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_story(
-    story: Product = Depends(story_by_id),
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
-) -> None:
-    await crud.delete_story(session=session, story=story)
+    node = await crud.get_node(session=session, node_id=node_id)
+    print(node_answer.answer)
+    return NodeAnswer(reaction=True)
