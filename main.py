@@ -6,7 +6,7 @@ import uvicorn
 
 from core.config import settings
 from api_v1 import router as router_v1
-
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager
@@ -17,29 +17,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(router=router_v1, prefix=settings.api_v1_prefix)
 
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+]
 
-
-@app.get("/")
-def hello_index():
-    return {
-        "message": "Hello index!",
-    }
-
-
-@app.get("/hello/")
-def hello(name: str = "World"):
-    name = name.strip().title()
-    return {"message": f"Hello {name}!"}
-
-
-@app.get("/calc/add/")
-def add(a: int, b: int):
-    return {
-        "a": a,
-        "b": b,
-        "result": a + b,
-    }
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
