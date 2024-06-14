@@ -17,18 +17,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(router=router_v1, prefix=settings.api_v1_prefix)
 
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:5173"], # Allows all origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    allow_methods=["*"], # Allows all methods
+    allow_headers=["*"], # Allows all headers
+    )
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
