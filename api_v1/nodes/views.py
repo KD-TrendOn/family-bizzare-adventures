@@ -15,7 +15,11 @@ async def get_node(
     path_id: int,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    return await crud.get_(session=session, )
+    is_node = await crud.get_node_instance(session=session, story_id=story_id, parent_id=parent_id, path_id=path_id)
+    if is_node is None:
+        pass
+    else:
+        return is_node
 
 
 @router.post(
