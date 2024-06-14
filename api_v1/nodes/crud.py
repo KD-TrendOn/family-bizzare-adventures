@@ -41,3 +41,5 @@ async def get_node_instance(session: AsyncSession, path_id: int, parent_id: int,
     if len(nodes) == 0:
         return None
     return nodes[0]
+
+#hi
