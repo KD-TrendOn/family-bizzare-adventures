@@ -57,13 +57,13 @@ async def create_node(session: AsyncSession, node_in: NodeBase) -> Node:
     # await session.refresh(product)
     return node
 
-async def get_node_instance(session: AsyncSession, story_id: int, parent_id:int, path_id:int) -> Optional[Node]:
-    stmt = select(Node).where(Node.story_id == story_id and Node.path_id == path_id and Node.parent_id == parent_id).order_by(Node.id)
+async def get_node_instance(session: AsyncSession, story_id: int, parent_id: int, path_id: int) -> Optional[Node]:
+    stmt = select(Node).where(
+        Node.story_id == story_id,
+        Node.parent_id == parent_id,
+        Node.path_id == path_id
+    )
     result: Result = await session.execute(stmt)
-    nodes = result.scalars().all()
-    nodes = list(nodes)
-    if len(nodes) == 0:
-        return None
-    else:
-        return nodes[0]
+    node = result.scalars().first()
+    return node
 #hi
