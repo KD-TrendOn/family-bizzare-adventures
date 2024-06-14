@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import db_helper
 from . import crud
 from .dependencies import story_by_id
-from .schemas import Product, ProductCreate, ProductUpdate, ProductUpdatePartial, StorySchemaDB, StoryBase
+from .schemas import StorySchemaDB, StoryBase
 
 router = APIRouter(tags=["Storys"])
 
