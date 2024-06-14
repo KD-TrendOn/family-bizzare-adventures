@@ -16,7 +16,7 @@ class Node(StoryRelationMixin, Base):
     parent_id: Mapped[int] = mapped_column(nullable=True)
     short_line: Mapped[str] = mapped_column(Text, nullable=False)
     image: Mapped[str] = mapped_column(Text, nullable=False)
-    charachter_name: Mapped[str] = mapped_column(String(40), default="Неизвестный", nullable=False)
+    character_name: Mapped[str] = mapped_column(String(40), default="Неизвестный", nullable=False)
     question: Mapped[str] = mapped_column(Text, nullable=False)
     reaction_true: Mapped[str] = mapped_column(Text, nullable=False)
     reaction_false: Mapped[str] = mapped_column(Text, nullable=False)
