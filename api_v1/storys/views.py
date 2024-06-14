@@ -5,7 +5,7 @@ from core.models import db_helper
 from . import crud
 from .dependencies import story_by_id
 from .schemas import StorySchemaDB, StoryBase
-
+from api_v1.nodes import crud as cr
 router = APIRouter(tags=["Storys"])
 
 
@@ -25,6 +25,7 @@ async def create_story(
     story_in: StoryBase,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
+    await crud.create_story()
     return await crud.create_story(session=session, story_in=story_in)
 
 

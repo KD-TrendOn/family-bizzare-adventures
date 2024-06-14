@@ -11,4 +11,5 @@ if TYPE_CHECKING:
 
 class Story(Base):
     base_prompt: Mapped[str] = mapped_column(Text ,nullable=False)
+    base_node_id: Mapped[int] = mapped_column(nullable=True)
     nodes: Mapped[list["Node"]] = relationship(back_populates="story")

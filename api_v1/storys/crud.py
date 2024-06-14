@@ -29,9 +29,20 @@ async def create_story(session: AsyncSession, story_in: StoryBase) -> Story:
     # await session.refresh(product)
     return story
 
+async def update_story(
+        session:AsyncSession,
+        story_id:int,
+        base_node_id:int        
+) -> Story:
+    story = await session.get(Story, story_id)
+    story.base_node_id = base_node_id
+    await session.commit()
+    return story
+
 async def delete_story(
     session: AsyncSession,
     story: Story,
+    story_update
 ) -> None:
     await session.delete(story)
     await session.commit()
