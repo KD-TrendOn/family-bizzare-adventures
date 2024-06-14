@@ -20,6 +20,8 @@ class NodeBase(BaseModel):
     short_line:str
 
     image:str #base64 string
+    
+    character_name:str
 
     question: str
 
