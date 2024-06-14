@@ -18,7 +18,7 @@ async def get_storys(
 
 @router.post(
     "/",
-    response_model=StorySchemaDB,
+    response_model=SendStory,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_story(

@@ -56,4 +56,4 @@ def image_generate(prompt: str):
     uuid = api.generate(prompt, model_id)
     images = api.check_generation(uuid)
     print(images)
-    return images
+    return images[0]

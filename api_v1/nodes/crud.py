@@ -21,7 +21,7 @@ def create_node_base(story_id:int, base_prompt:str):
     character_name = generate_name(short_line)
     question = generate_question(base_prompt, short_line, image_prompt)
     reactions = generate_reactions(base_prompt, short_line, question)
-    options = generate_options(base_prompt, short_line, question)
+    options = generate_options(base_prompt, short_line, image_prompt, question)
     nodebase = NodeBase(
         story_id=story_id,
         short_line=short_line,

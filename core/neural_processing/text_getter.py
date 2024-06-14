@@ -6,7 +6,7 @@ from langchain.output_parsers import PydanticOutputParser
 from langchain_core.output_parsers.string import StrOutputParser
 from dotenv import load_dotenv
 from os import getenv
-from schemas import Options, Binary
+from .schemas import Options, Binary
 
 load_dotenv()
 
