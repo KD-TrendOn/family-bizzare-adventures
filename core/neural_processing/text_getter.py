@@ -18,6 +18,13 @@ llm = ChatOpenAI(
         openai_api_base="https://openrouter.ai/api/v1",
     )
 
+better_llm = ChatOpenAI(
+        temperature=0.7,
+        model="openai/gpt-4o",#openai/gpt-4o
+        openai_api_key=getenv("OPENROUTER_API_KEY"),
+        openai_api_base="https://openrouter.ai/api/v1",
+    )
+
 def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, option_text:Optional[str]=None):
     if current_storyline is None:
         prompt_template = """
@@ -95,7 +102,7 @@ def generate_question(base_prompt:str, current_storyline:str, background:str):
     {background}
     """
     prompt = PromptTemplate.from_template(template=prompt_template)
-    chain = prompt | llm | StrOutputParser()
+    chain = prompt | better_llm | StrOutputParser()
     return chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline, 'background':background})
 
 def generate_name(current_storyline:str):
@@ -198,6 +205,6 @@ def check_answer(current_storyline:str, question:str, answer:str):
     prompt = PromptTemplate.from_template(template=prompt_template)
     output_parser = PydanticOutputParser(pydantic_object=Binary)
     format_instructions = output_parser.get_format_instructions()
-    chain = prompt | llm | output_parser
+    chain = prompt | better_llm | output_parser
 
     return chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'question':question, 'answer':answer}).dict()['correctness']

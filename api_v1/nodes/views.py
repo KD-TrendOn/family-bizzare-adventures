@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import db_helper, Node
+from core.neural_processing.text_getter import check_answer
 from . import crud
 from .schemas import NodeBase, NodeCreate, NodeSchemaDB, NodeQuestion, NodeAnswer
 from ..storys import crud as cr
@@ -37,5 +38,5 @@ async def answer_status(
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     node = await crud.get_node(session=session, node_id=node_id)
-    print(node_answer.answer)
-    return NodeAnswer(reaction=True)
+    reaction = check_answer(current_storyline=node.short_line, question=node.question, answer=node_answer.answer)
+    return NodeAnswer(reaction=reaction)

@@ -37,8 +37,12 @@ async def create_story(
 @router.get("/{story_id}/", response_model=SendStory)
 async def get_story(
     story: StorySchemaDB = Depends(story_by_id),
+    session : AsyncSession = Depends(db_helper.scoped_session_dependency)
 ):
-    return story
+    nodebase = await cr.get_node(session=session, node_id=story.base_node_id)
+
+    return SendStory(story=story, base_node=NodeSchemaDB(**nodebase.__dict__))
+
 
 
 @router.delete("/{story_id}/", status_code=status.HTTP_204_NO_CONTENT)
