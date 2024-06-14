@@ -13,5 +13,6 @@ class StorySchemaDB(StoryBase):
     base_node_id: Optional[int] = None
 
 class SendStory(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     story: StorySchemaDB
     base_node: NodeSchemaDB

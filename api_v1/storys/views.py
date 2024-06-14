@@ -6,6 +6,7 @@ from . import crud
 from .dependencies import story_by_id
 from .schemas import StorySchemaDB, StoryBase, SendStory
 from api_v1.nodes import crud as cr
+from ..nodes.schemas import NodeSchemaDB
 router = APIRouter(tags=["Storys"])
 
 
@@ -30,7 +31,7 @@ async def create_story(
     node = await cr.create_node(session=session, node_in=nodebase)
     story = await crud.update_story(session=session, story_id=story.id, base_node_id=node.id)
 
-    return SendStory(story=story, node=node)
+    return SendStory(story=StorySchemaDB(**story.__dict__), base_node=NodeSchemaDB(**node.__dict__))
 
 
 @router.get("/{story_id}/", response_model=SendStory)
