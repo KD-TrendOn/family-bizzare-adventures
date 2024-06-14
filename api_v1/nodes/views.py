@@ -19,9 +19,8 @@ async def get_node(
     if is_node is None:
         story = await cr.get_story(session=session, story_id=story_id)
         base_prompt = story.base_prompt
-        node_base = crud.create_node_base(story_id=story_id, base_prompt=base_prompt)
-        node_in = NodeBase(**node_base.model_dump(), parent_id=parent_id, path_id=path_id)
-        node = await crud.create_node(session=session, node_in=node_in)
+        node_base = await crud.create_node_recursive(session=session, story_id=story_id, base_prompt=base_prompt, path_id=path_id, parent_id=parent_id)
+        node = await crud.create_node(session=session, node_in=node_base)
         return node
     else:
         return is_node
