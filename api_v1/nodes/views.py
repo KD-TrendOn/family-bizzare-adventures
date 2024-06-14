@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import db_helper
+from core.models import db_helper, Node
 from . import crud
 from .schemas import NodeBase, NodeCreate, NodeSchemaDB, NodeQuestion, NodeAnswer
-
+from ..storys import crud as cr
 router = APIRouter(tags=["Nodes"])
 
 
@@ -17,7 +17,12 @@ async def get_node(
 ):
     is_node = await crud.get_node_instance(session=session, story_id=story_id, parent_id=parent_id, path_id=path_id)
     if is_node is None:
-        pass
+        story = await cr.get_story(session=session, story_id=story_id)
+        base_prompt = story.base_prompt
+        node_base = crud.create_node_base(story_id=story_id, base_prompt=base_prompt)
+        node_in = NodeBase(**node_base.model_dump(), parent_id=parent_id, path_id=path_id)
+        node = await crud.create_node(session=session, node_in=node_in)
+        return node
     else:
         return is_node
 
