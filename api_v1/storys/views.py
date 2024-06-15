@@ -33,6 +33,20 @@ async def create_story(
 
     return SendStory(story=StorySchemaDB(**story.__dict__), base_node=NodeSchemaDB(**node.__dict__))
 
+@router.post(
+    "/fake/",
+    response_model=SendStory,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_fake_story(
+    story_in: StoryBase,
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+):
+    story = await crud.get_story(session=session, story_id=11)
+    node = await cr.get_node(session=session, node_in=10)
+
+    return SendStory(story=StorySchemaDB(**story.__dict__), base_node=NodeSchemaDB(**node.__dict__))
+
 
 @router.get("/{story_id}/", response_model=SendStory)
 async def get_story(
