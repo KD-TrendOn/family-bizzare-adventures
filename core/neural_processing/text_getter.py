@@ -38,7 +38,7 @@ def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, op
     Твой ответ:
     """
         prompt = PromptTemplate.from_template(template=prompt_template)
-        chain = prompt | llm | StrOutputParser()
+        chain = prompt | better_llm | StrOutputParser()
         return chain.invoke({'base_prompt':base_prompt})
     else:
         prompt_template = """
@@ -49,6 +49,7 @@ def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, op
     Команда после прохождения этапа выбрала пойти по определенному пути.
     Например если она находится в темной комнате и они выбрали поискать дверь, то твоя задача рассказать что произошло в результате этого, и кого они встретили на своем пути.
     Напиши краткое описание происходящего вокруг и одного игрового персонажа который им повстречался, можно описать его намерения.
+    Напиши задание которое дает персонаж команде чтобы пройти дальше.
     Начальные инструкции:
     {base_prompt}
 
@@ -60,7 +61,7 @@ def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, op
     Твой ответ:
     """
         prompt = PromptTemplate.from_template(template=prompt_template)
-        chain = prompt | llm | StrOutputParser()
+        chain = prompt | better_llm | StrOutputParser()
         return chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline, 'option_text':option_text})
 
 def generate_background(base_prompt:str, current_storyline:str):
@@ -71,7 +72,6 @@ def generate_background(base_prompt:str, current_storyline:str):
         Тебе дано краткое описание ситуации и происходящего вокруг и одного игрового персонажа который им повстречался, и возможно его намерения.
         Напиши промпт который будет визуально описывать задний план происходящего на экране с использованием описаний, указаний и деталей, и напиши промпт описывающий положение и изображение персонажа на первом плане.
         Для персонажа опиши внешность и укажи что он находится на переднем плане и смотрит прямо. Укажи что персонаж должен выделяться от заднего фона.
-        Пожалуйста если можешь, НАПИШИ ЧТО ПЕРСОНАЖ ДОЛЖЕН БЫТЬ НЕ ПО ЦЕНТРУ! ОН МОЖЕТ БЫТЬ У ЛЕВОГО ИЛИ ПРАВОГО КРАЯ НАПИШИ ЭТО.
         Начальные инструкции:
         {base_prompt}
 
@@ -92,6 +92,7 @@ def generate_question(base_prompt:str, current_storyline:str, background:str):
     Учитывая начальные инструкции к истории, основываясь в основном на описание текущей ситуации и визуальной обстановки, сгенерируй реплику персонажа,
     которая вводит пользователей в курс дела, а в конце обязательно напиши вопрос который персонаж задает команде.
     Вопрос может быть загадкой, математической задачкой, просьбой перевести предложение или написать стих. Тут можно проявить творчество. Разрешено даже использовать ролевую механику и попросить пользователя описать как он будет действовать чтобы преодолеть какую то проблему в зависимости от контекста.
+    Учти что твой текст должен быть короче 60 слов строго.
     Начальные инструкции:
     {base_prompt}
 
@@ -123,9 +124,18 @@ def generate_reactions(base_prompt:str, current_storyline:str, question:str):
     for stat, nazv in [('Команда прошла задание.', 'true'), ("Команда провалила задание. Но игра не закончена.", 'false')]:
         prompt_template = """
         Ты - оператор истории, которому надо решить что произойдет после того как {stat}.
-        Персонаж задал вопрос команде и тебе известно содержание ситуации в которой оказалась команда.
-        Твоя задача описать что произошло, словами персонажа который задал вопрос. От первого лица сообщи комментарий по решению задания, и сообщи что персонаж нехотя или со спокойной душой пропускает их дальше.
+        Игровой Персонаж задал вопрос команде и тебе известно содержание ситуации в которой оказалась команда.
+        Твоя задача написать ответ от лица игрового персонажа на это. От первого лица сообщи комментарий по решению задания, и сообщи что персонаж нехотя или со спокойной душой пропускает их дальше.
+        Например:
+        Я огорчен вашим решением, но все равно дам вам пройти.
+
+        Или
+
+        Прекрасный ответ! Я очень рад что вы догадались что скрывает в себе данная загадка.
+
+
         Ты можешь следовать некоторым начальным инструкциям которые пользователи задали в начале.
+        Твой ответ должен быть короче 60 слов строго.
         Начальные инструкции:
         {base_prompt}
         
@@ -149,6 +159,7 @@ def generate_options(base_prompt:str, current_storyline:str, background:str, que
     Это должен быть обычный список из 4 вариантов.
     Генерируй интересные варианты, сообщающие что команда может переместиться, осмотреться, взаимодействовать с пространством.
     Твой ответ должен соответствовать строгому формату и состоять ровно из 4 вариантов выбора пути.
+    Каждый вариант ответа должен быть КОРОЧЕ чем 12 символов
     Следуй форматирующим инструкциям:
 
     {format_instructions}
@@ -174,7 +185,7 @@ def generate_options(base_prompt:str, current_storyline:str, background:str, que
     prompt = PromptTemplate.from_template(template=prompt_template)
     output_parser = PydanticOutputParser(pydantic_object=Options)
     format_instructions = output_parser.get_format_instructions()
-    chain = prompt | llm | output_parser
+    chain = prompt | better_llm | output_parser
 
     return chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'base_prompt':base_prompt, 'background':background, 'question':question}).dict()['options']
 
