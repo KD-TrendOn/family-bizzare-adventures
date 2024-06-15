@@ -53,8 +53,18 @@ API_KEY = getenv("API_KEY")
 SECRET_KEY = getenv("SECRET_KEY")
 api = Text2ImageAPI('https://api-key.fusionbrain.ai/', API_KEY,SECRET_KEY)
 def image_generate(prompt: str):
-    model_id = api.get_model()
-    uuid = api.generate(prompt, model_id)
-    images = api.check_generation(uuid)
-    print(images)
-    return images[0]
+    flag = True
+    while flag:
+        try:
+            model_id = api.get_model()
+            uuid = api.generate(prompt, model_id)
+            images = api.check_generation(uuid)
+            print(images[0])
+            if images is None:
+                raise TypeError
+            result = images[0]
+        except:
+            pass
+        else:
+            flag = False
+    return result
