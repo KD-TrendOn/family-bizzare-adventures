@@ -28,15 +28,16 @@ async def get_node(
 
 
 @router.post(
-    "/get-reaction/{node_id}",
+    "/get-reaction/",
     response_model=NodeAnswer,
     status_code=status.HTTP_201_CREATED,
 )
 async def answer_status(
-    node_id: int,
     node_answer: NodeQuestion,
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
-    node = await crud.get_node(session=session, node_id=node_id)
+    print('Пришел')
+    print(node_answer)
+    node = await crud.get_node(session=session, node_id=node_answer.id)
     reaction = check_answer(current_storyline=node.short_line, question=node.question, answer=node_answer.answer)
     return NodeAnswer(reaction=reaction)
