@@ -32,10 +32,11 @@ def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, op
     Твои пользователи это семья, которая собралась как команда чтобы пройти историю которую ты придумаешь.
     Тебе даны начальные инструкции, про что должна быть история и где и как она происходит.
     История должна основываться на начальных инструкциях. Если написано про одно, генерируй про одно. Если про другое то про другое.
-    Команда сейчас только начинает свой путь, и на основе начальных инструкций придумай начальную ситуацию в которой они оказались.
+    Команда сейчас только начинает свой путь, и на основе начальных инструкций придумай начальную ситуацию в которой они оказались учитывая тему истории.
     Напиши краткое описание происходящего вокруг и одного игрового персонажа который им повстречался, и загадку которую он им задает для прохождения дальше.
-    Напиши задание которое дает персонаж команде чтобы пройти дальше. СОЗДАВАЙ ИСТОРИЮ ПО СЛЕДУЮЩЕМУ ШАБЛОНУ ТОЛЬКО ТО ЧТО ТАМ НАПИСАНО НЕ ПРО ЛЕС А ПРО НАЧАЛЬНЫЕ ИНСТРУКЦИИ:
-    Начальные инструкции:
+    Напиши задание которое дает персонаж команде чтобы пройти дальше. СОЗДАВАЙ ИСТОРИЮ ПО СЛЕДУЮЩЕМУ ШАБЛОНУ ТОЛЬКО ТО ЧТО ТАМ НАПИСАНО НЕ ПРО ЛЕС А ПРО тему истории:
+    Семья написала тему для истории и сгенерируй ситуацию в теме этой истории пожалуйста от этого зависит их досуг. Именно про то что они написали
+    Тема истории:
     {base_prompt}
     Твой ответ:
     """
@@ -54,7 +55,7 @@ def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, op
     Например если она находится в темной комнате и они выбрали поискать дверь, то твоя задача рассказать что произошло в результате этого, и кого они встретили на своем пути.
     Напиши краткое описание происходящего вокруг и одного игрового персонажа который им повстречался, и загадку которую он задает команде для прохождения дальше.
     Напиши задание которое дает персонаж команде чтобы пройти дальше.
-    Начальные инструкции:
+    Тема истории:
     {base_prompt}
 
     Текущее нахождение:
@@ -173,75 +174,85 @@ def generate_reactions(base_prompt:str, current_storyline:str, question:str):
     return result
 
 def generate_options(base_prompt:str, current_storyline:str, background:str, question:str):
-    prompt_template="""
-    Ты - оператор ролевой истории, квеста, в котором дружная команда пользователей попала в ситуацию с персонажем, и прошла его задание.
-    Твоя задача придумать 4 варианта того куда они теперь могут отправиться или что могут сделать.
-    Это может быть что то оригинальное, или какое то смелое решение исходя из ситуации. Например если они находятся в комнате с двумя дверьми можно дать варианты
-    Осмотреться, Убежать, Открыть правую дверь, открыть левую дверь.
-    Это должен быть обычный список из 4 вариантов.
-    Генерируй интересные варианты, сообщающие что команда может переместиться, осмотреться, взаимодействовать с пространством.
-    Твой ответ должен соответствовать строгому формату и состоять ровно из 4 вариантов выбора пути.
-    Каждый вариант ответа должен быть КОРОЧЕ чем 12 символов
-    Следуй форматирующим инструкциям:
+    results = []  
+    for i in range(4):
+        prompt_template="""
+        Ты - оператор ролевой истории, квеста, в котором дружная команда пользователей попала в ситуацию с персонажем, и прошла его задание.
+        Придумай вариант что пользователи могут сделать дальше и пойти куда то. Вариант ответа должен быть коротким описанием действия.
+        Это может быть что то оригинальное, или какое то смелое решение исходя из ситуации. Например если они находятся в комнате с двумя дверьми можно дать варианты
+        Осмотреться или Убежать или Открыть правую дверь или проломать стену.
+        Генерируй интересные варианты, сообщающие что команда может переместиться, осмотреться, взаимодействовать с пространством.
+        Твой ответ должен соответствовать строгому формату и состоять ровно из 4 вариантов выбора пути.
+        Вариант ответа должен быть КОРОЧЕ чем 12 символов
+        
 
-    {format_instructions}
 
-    Вот ситуация в которой находятся пользователи:
+        Вот ситуация в которой находятся пользователи:
 
-    {current_storyline}
+        {current_storyline}
 
-    Вот так выглядит изначальное описание истории и про что она должна быть:
+        Вот так выглядит изначальное описание истории и про что она должна быть:
 
-    {base_prompt}
+        {base_prompt}
 
-    Вот описание обстановки вокруг:
+        Вот описание обстановки вокруг:
 
-    {background}
+        {background}
 
-    Вот задание которое смогла решить команда:
+        Вот задание которое смогла решить команда:
 
-    {question}
+        {question}
 
-    Твой ответ:
-    """
-    prompt = PromptTemplate.from_template(template=prompt_template)
-    output_parser = PydanticOutputParser(pydantic_object=Options)
-    format_instructions = output_parser.get_format_instructions()
-    chain = prompt | better_llm | output_parser
+        Твой ответ:
+        """
+        prompt = PromptTemplate.from_template(template=prompt_template)
+        output_parser = StrOutputParser()
+        chain = prompt | better_llm | output_parser
 
-    result = chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'base_prompt':base_prompt, 'background':background, 'question':question}).dict()['options']
-    print(f'next options {result}')
-    return result
+        result = chain.invoke({"current_storyline":current_storyline, 'base_prompt':base_prompt, 'background':background, 'question':question})
+        print(f'next options {result}')
+        results.append(result)
+    
+    return results
 
 def check_answer(current_storyline:str, question:str, answer:str):
-    prompt_template = """
-    Ты - игровой персонаж который задал вопрос команде пользователей и получил их ответ. Вопросы и ответы могут быть на разные темы и разной формы.
-    Твоя задача ответить True или False в специальном формате который будет указан ниже, что будет указывать на то, считаешь ли ты их ответ правильным.
-    Будь строг и отвечай True если команда по настоящему постаралась и дала правильный ответ и False для того чтобы показать что твои потребности не удовлетворены.
+    i = 3
+    flag = True
+    while flag and i > 0:    
+        try:
+            prompt_template = """
+            Ты - игровой персонаж который задал вопрос команде пользователей и получил их ответ. Вопросы и ответы могут быть на разные темы и разной формы.
+            Твоя задача ответить True или False в специальном формате который будет указан ниже, что будет указывать на то, считаешь ли ты их ответ правильным.
+            Будь строг и отвечай True если команда по настоящему постаралась и дала правильный ответ и False для того чтобы показать что твои потребности не удовлетворены.
 
-    Следуй форматирующим инструкциям:
+            Следуй форматирующим инструкциям:
 
-    {format_instructions}
+            {format_instructions}
 
-    Вот ситуация в которой находятся пользователи:
+            Вот ситуация в которой находятся пользователи:
 
-    {current_storyline}
+            {current_storyline}
 
-    Вот задание которое команда взялась решить:
+            Вот задание которое команда взялась решить:
 
-    {question}
+            {question}
 
-    Вот ответ который они дали:
+            Вот ответ который они дали:
 
-    {answer}
+            {answer}
 
-    Твое решение:
-    """
-    prompt = PromptTemplate.from_template(template=prompt_template)
-    output_parser = PydanticOutputParser(pydantic_object=Binary)
-    format_instructions = output_parser.get_format_instructions()
-    chain = prompt | better_llm | output_parser
+            Твое решение:
+            """
+            prompt = PromptTemplate.from_template(template=prompt_template)
+            output_parser = PydanticOutputParser(pydantic_object=Binary)
+            format_instructions = output_parser.get_format_instructions()
+            chain = prompt | better_llm | output_parser
 
-    result = chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'question':question, 'answer':answer}).dict()['correctness']
-    print(f'answer check {result}')
-    return result
+            result = chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'question':question, 'answer':answer}).dict()['correctness']
+            print(f'answer check {result}')
+        except:
+            i -= 1
+        else:
+            flag = False
+            return result
+    raise TypeError
