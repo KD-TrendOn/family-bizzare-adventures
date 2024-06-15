@@ -43,7 +43,7 @@ async def create_fake_story(
     session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     story = await crud.get_story(session=session, story_id=11)
-    node = await cr.get_node(session=session, node_in=10)
+    node = await cr.get_node(session=session, node_id=10)
 
     return SendStory(story=StorySchemaDB(**story.__dict__), base_node=NodeSchemaDB(**node.__dict__))
 
