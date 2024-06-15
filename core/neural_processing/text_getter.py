@@ -28,21 +28,25 @@ better_llm = ChatOpenAI(
 def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, option_text:Optional[str]=None):
     if current_storyline is None:
         prompt_template = """
-    Ты - сказочник, задача которого придумывать невероятные истории с каверзными загадками и красочными персонажами.
+    Ты - создатель историй, задача которого придумывать невероятные истории с каверзными загадками и красочными персонажами.
     Твои пользователи это семья, которая собралась как команда чтобы пройти историю которую ты придумаешь.
     Тебе даны начальные инструкции, про что должна быть история и где и как она происходит.
+    История должна основываться на начальных инструкциях. Если написано про одно, генерируй про одно. Если про другое то про другое.
     Команда сейчас только начинает свой путь, и на основе начальных инструкций придумай начальную ситуацию в которой они оказались.
     Напиши краткое описание происходящего вокруг и одного игрового персонажа который им повстречался, можно описать его намерения.
+    Напиши задание которое дает персонаж команде чтобы пройти дальше. СОЗДАВАЙ ИСТОРИЮ ПО СЛЕДУЮЩЕМУ ШАБЛОНУ ТОЛЬКО ТО ЧТО ТАМ НАПИСАНО НЕ ПРО ЛЕС А ПРО НАЧАЛЬНЫЕ ИНСТРУКЦИИ:
     Начальные инструкции:
     {base_prompt}
     Твой ответ:
     """
         prompt = PromptTemplate.from_template(template=prompt_template)
         chain = prompt | better_llm | StrOutputParser()
-        return chain.invoke({'base_prompt':base_prompt})
+        result = chain.invoke({'base_prompt':base_prompt})
+        print(f'base_story {result}')
+        return result
     else:
         prompt_template = """
-    Ты - сказочник, задача которого придумывать невероятные истории с каверзными загадками и красочными персонажами.
+    Ты - создатель историй, задача которого придумывать невероятные истории с каверзными загадками и красочными персонажами.
     Твои пользователи это семья, которая собралась как команда чтобы пройти историю которую ты придумаешь.
     Тебе даны начальные инструкции, про что должна быть история и где и как она происходит.
     Также, тебе дано текущее местонахождение команды и в какой ситуации она находится.
@@ -62,7 +66,9 @@ def generate_storyline(base_prompt:str, current_storyline:Optional[str]=None, op
     """
         prompt = PromptTemplate.from_template(template=prompt_template)
         chain = prompt | better_llm | StrOutputParser()
-        return chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline, 'option_text':option_text})
+        result = chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline, 'option_text':option_text})
+        print(f'next storyline {result}')
+        return result
 
 def generate_background(base_prompt:str, current_storyline:str):
     prompt_template = """
@@ -70,8 +76,15 @@ def generate_background(base_prompt:str, current_storyline:str):
         Команда пользователей находится внутри истории, и они повстречали на своем пути новую ситуацию с персонажем.
         Тебе даны начальные инструкции, про что должна быть история и где и как она происходит.
         Тебе дано краткое описание ситуации и происходящего вокруг и одного игрового персонажа который им повстречался, и возможно его намерения.
-        Напиши промпт который будет визуально описывать задний план происходящего на экране с использованием описаний, указаний и деталей, и напиши промпт описывающий положение и изображение персонажа на первом плане.
-        Для персонажа опиши внешность и укажи что он находится на переднем плане и смотрит прямо. Укажи что персонаж должен выделяться от заднего фона.
+        Просто опиши визуально задний фон и этого персонажа. В стилистике которую задал базовый промпт.
+        Напиши промпт который будет визуально описывать задний план происходящего на экране с использованием описаний, указаний и деталей, и напиши промпт описывающий положение и изображение персонажа на первом плане. Опиши очень коротко.
+        Для персонажа опиши внешность и укажи что он находится на переднем плане и смотрит прямо. Укажи что персонаж должен выделяться от заднего фона. Опиши коротко.
+        Например:
+        
+        Задний план джунгли, зеленые тропические деревья, речка, передний план лев, большая грива, острый взгляд
+
+        Создавай промпт в соответствии с примером основываясь на контексте
+
         Начальные инструкции:
         {base_prompt}
 
@@ -81,8 +94,10 @@ def generate_background(base_prompt:str, current_storyline:str):
         Твой ответ:
     """
     prompt = PromptTemplate.from_template(template=prompt_template)
-    chain = prompt | llm | StrOutputParser()
-    return chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline})
+    chain = prompt | better_llm | StrOutputParser()
+    result = chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline})
+    print(f'background prompt {result}')
+    return result
 
 def generate_question(base_prompt:str, current_storyline:str, background:str):
     prompt_template = """
@@ -104,7 +119,10 @@ def generate_question(base_prompt:str, current_storyline:str, background:str):
     """
     prompt = PromptTemplate.from_template(template=prompt_template)
     chain = prompt | better_llm | StrOutputParser()
-    return chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline, 'background':background})
+    result = chain.invoke({'base_prompt':base_prompt, "current_storyline":current_storyline, 'background':background})
+    print(f'background prompt {result}')
+    return result
+
 
 def generate_name(current_storyline:str):
     prompt_template = """
@@ -117,7 +135,9 @@ def generate_name(current_storyline:str):
     """
     prompt = PromptTemplate.from_template(template=prompt_template)
     chain = prompt | llm | StrOutputParser()
-    return chain.invoke({"current_storyline":current_storyline})
+    result = chain.invoke({"current_storyline":current_storyline})
+    print(f'name {result}')
+    return result
 
 def generate_reactions(base_prompt:str, current_storyline:str, question:str):
     result = dict()
@@ -148,6 +168,7 @@ def generate_reactions(base_prompt:str, current_storyline:str, question:str):
         prompt = PromptTemplate.from_template(template=prompt_template)
         chain = prompt | llm | StrOutputParser()
         result[nazv] = chain.invoke({'stat':stat, 'base_prompt':base_prompt,"current_storyline":current_storyline, 'question':question})
+    print(f'reactions {result}')
     return result
 
 def generate_options(base_prompt:str, current_storyline:str, background:str, question:str):
@@ -187,7 +208,9 @@ def generate_options(base_prompt:str, current_storyline:str, background:str, que
     format_instructions = output_parser.get_format_instructions()
     chain = prompt | better_llm | output_parser
 
-    return chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'base_prompt':base_prompt, 'background':background, 'question':question}).dict()['options']
+    result = chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'base_prompt':base_prompt, 'background':background, 'question':question}).dict()['options']
+    print(f'next options {result}')
+    return result
 
 def check_answer(current_storyline:str, question:str, answer:str):
     prompt_template = """
@@ -218,4 +241,6 @@ def check_answer(current_storyline:str, question:str, answer:str):
     format_instructions = output_parser.get_format_instructions()
     chain = prompt | better_llm | output_parser
 
-    return chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'question':question, 'answer':answer}).dict()['correctness']
+    result = chain.invoke({'format_instructions':format_instructions, "current_storyline":current_storyline, 'question':question, 'answer':answer}).dict()['correctness']
+    print(f'answer check {result}')
+    return result
