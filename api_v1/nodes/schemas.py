@@ -52,3 +52,8 @@ class NodeSchemaDB(NodeBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+
+class NodeGet(BaseModel):
+    story_id: int
+    parent_id: int
+    path_id: int
